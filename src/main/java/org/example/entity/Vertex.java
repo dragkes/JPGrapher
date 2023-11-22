@@ -18,11 +18,6 @@ public class Vertex {
     @NonNull
     private Point coordinates;
 
-    public double getDistance(Vertex vertex) {
-        return Math.sqrt(Math.pow(this.coordinates.x - vertex.getCoordinates().x, 2) +
-                Math.pow(this.coordinates.y - vertex.getCoordinates().y, 2));
-    }
-
     @Override
     public String toString() {
         return "Vertex{" +

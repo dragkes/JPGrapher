@@ -3,6 +3,7 @@ package org.example.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.util.function.Predicate;
@@ -17,21 +18,13 @@ public class Pixel {
         return pixel -> {
             Color pixelColor = pixel.getColor();
             if (epsilon != 0) {
-                double val1 = Math.sqrt(pixelColor.getRed() * pixelColor.getRed() +
-                        pixelColor.getGreen() * pixelColor.getGreen() +
-                        pixelColor.getBlue() * pixelColor.getBlue());
-                double val2 = Math.sqrt(color.getRed() * color.getRed() +
-                        color.getGreen() * color.getGreen() +
-                        color.getBlue() * color.getBlue());
-                return Math.abs(val1 - val2) <= epsilon;
+                double compareBy = Math.sqrt(Math.pow(pixelColor.getRed() - color.getRed(), 2) +
+                        Math.pow(pixelColor.getGreen() - color.getGreen(), 2) +
+                        Math.pow(pixelColor.getBlue() - color.getBlue(), 2));
+                return compareBy <= epsilon;
             } else {
                 return color.equals(pixelColor);
             }
         };
-    }
-
-    public double getDistance(Pixel pixel) {
-        return Math.sqrt(Math.pow(this.coordinates.x - pixel.getCoordinates().x, 2) +
-                Math.pow(this.coordinates.y - pixel.getCoordinates().y, 2));
     }
 }
