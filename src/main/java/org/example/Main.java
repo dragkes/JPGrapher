@@ -3,9 +3,13 @@ package org.example;
 import lombok.extern.slf4j.Slf4j;
 import org.example.entity.Graph;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Objects;
+
+import static org.example.entity.Graph.drawSet;
 
 
 @Slf4j
@@ -60,7 +64,9 @@ public class Main {
             if (file.isFile()) {
                 try {
                     Graph graph = Graph.fromFile(file, new Color(35, 177, 77), new Color(63, 72, 204), 6);
+//                    BufferedImage img = ImageIO.read(file);
                     if (graph.getVertices().isEmpty()) throw new Exception("No color match");
+//                    drawSet(img, graph.getEndpoints());
                     File data = new File("C:\\Users\\andre\\IdeaProjects\\JPGrapher\\output\\data(" + file.getName() + ").txt");
                     if (data.createNewFile())
                         System.out.println("File '" + data.getPath() + "' created.");

@@ -15,6 +15,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.example.entity.Pixel.getByColor;
 
@@ -89,15 +90,30 @@ public class Graph {
 
         List<Vertex> vertices = getVertices(pathColor, epsilon, pixels);
         List<Vertex> endpointsList = getVertices(endpointColor, epsilon, pixels);
+        vertices.addAll(endpointsList);
+        findNeighbours(vertices);
         List<Vertex> result = new ArrayList<>();
 
         List<List<Vertex>> grouped = groupByNeighbours(endpointsList);
-        grouped.forEach(o -> result.add(o.get(0)));
+        grouped.forEach(o -> {
+            //result.add(o.get(0));
+            Map<Point, Vertex> vertexMap = new HashMap<>();
+            AtomicInteger sumX = new AtomicInteger();
+            AtomicInteger sumY = new AtomicInteger();
+            o.forEach(e -> {
+                vertexMap.put(e.getCoordinates(), e);
+                sumX.addAndGet(e.getCoordinates().x);
+                sumY.addAndGet(e.getCoordinates().y);
+            });
+            Vertex vertex = vertexMap.get(new Point(sumX.get()/o.size(), sumY.get()/o.size()));
+            result.add(vertex);
+        });
         Graph graph = new Graph(vertices);
         graph.setEndpoints(result);
         graph.check();
         return graph;
     }
+
 
     @NotNull
     private static List<Pixel> getPixels(File file) {
@@ -124,7 +140,6 @@ public class Graph {
         pixels = pixels.stream().filter(getByColor(color, epsilon)).toList();
         List<Vertex> vertices = new ArrayList<>();
         pixels.forEach(pixel -> vertices.add(new Vertex(new ArrayList<>(), null, pixel.getCoordinates())));
-        findNeighbours(vertices);
         return vertices;
     }
 
@@ -158,7 +173,8 @@ public class Graph {
         try (FileWriter writer = new FileWriter(file)) {
             for (int i = 0; i < endpoints.size(); i++) {
                 Vertex vertex = endpoints.get(i);
-                writer.write(String.format("%.0f %.0f", vertex.getCoordinates().getX(), vertex.getCoordinates().getY()));
+                int index = vertices.indexOf(vertex);
+                writer.write(String.format("%d %d %d", index, vertex.getCoordinates().x, vertex.getCoordinates().y));
                 if (i != endpoints.size() - 1) {
                     writer.write("\n");
                 }
@@ -217,5 +233,15 @@ public class Graph {
             }
         }
         return grouped;
+    }
+
+    public static void drawSet(BufferedImage img, List<Vertex> set) {
+        Graphics2D g = (Graphics2D) img.getGraphics();
+        g.setColor(Color.BLACK);
+        g.setStroke(new BasicStroke(1));
+        for (Vertex vertex : set) {
+            //g.drawOval(vertex.getCoordinates().x, vertex.getCoordinates().y, 20, 20);
+            g.drawLine(vertex.getCoordinates().x, vertex.getCoordinates().y, vertex.getCoordinates().x, vertex.getCoordinates().y);
+        }
     }
 }
